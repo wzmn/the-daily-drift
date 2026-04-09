@@ -1,73 +1,102 @@
-import Image from "next/image";
-import { createClient } from '@/utils/supabase/server'
-import { cookies } from 'next/headers'
+import { db } from "@/lib/engine/db";
+import { drafts } from "@/lib/engine/schema";
+import { desc } from "drizzle-orm";
+import Link from "next/link";
+import { ArrowRight, Zap, Shield, Globe } from "lucide-react";
 
-export default async function Home() {
-  const cookieStore = await cookies()
-  const supabase = await createClient()
-
-  const { data: todos } = await supabase.from('drafts').select();
-  console.log(todos)
+export default async function HomePage() {
+  // Fetch the latest drift to showcase current engine status
+  const latestDrifts = await db.select().from(drafts).orderBy(desc(drafts.createdAt)).limit(1);
+  const currentDrift = latestDrifts[0];
 
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-black text-white selection:bg-orange-500 selection:text-black">
+      {/* Navigation */}
+      <nav className="flex justify-between items-center p-6 max-w-7xl mx-auto border-b border-zinc-800/50">
+        <h1 className="text-xl font-black tracking-tighter italic">THE DAILY DRIFT</h1>
+        <div className="flex gap-6 items-center">
+          <Link href="/login" className="text-sm font-medium hover:text-orange-500 transition">Sign In</Link>
+          <Link href="/register" className="bg-white text-black px-4 py-2 rounded-full text-sm font-bold hover:bg-zinc-200 transition">
+            Start Engine
+          </Link>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </nav>
+
+      {/* Hero Section */}
+      <main className="max-w-7xl mx-auto px-6 pt-20 pb-32">
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="space-y-8">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-500 text-xs font-bold uppercase tracking-widest">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+              </span>
+              Engine v1.0 Live
+            </div>
+            
+            <h2 className="text-6xl lg:text-8xl font-black tracking-tighter leading-[0.9]">
+              AUTOMATED <br /> <span className="text-zinc-500">NEWS DRIFT.</span>
+            </h2>
+            
+            <p className="text-zinc-400 text-lg max-w-md leading-relaxed">
+              Transforming global tech trends into high-fidelity social graphics. Built with Next.js 15, Better-Auth, and Drizzle.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link href="/dashboard" className="flex items-center justify-center gap-2 bg-orange-500 text-black font-black px-8 py-4 rounded-xl hover:bg-orange-400 transition">
+                ENTER DASHBOARD <ArrowRight size={20} />
+              </Link>
+            </div>
+          </div>
+
+          {/* Real-time Preview Card */}
+          <div className="relative group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-orange-500 to-zinc-800 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+            <div className="relative bg-zinc-950 border border-zinc-800 p-8 rounded-2xl">
+              <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-[0.2em] mb-6">Latest Processed Signal</h3>
+              {currentDrift ? (
+                <div className="space-y-4">
+                  <div className="aspect-[4/5] bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 relative">
+                    {/* If you have an image, show it, otherwise show headline */}
+                    <div className="absolute inset-0 flex flex-col justify-end p-6 bg-gradient-to-t from-black to-transparent">
+                        <p className="text-orange-500 text-xs font-bold mb-1">{currentDrift.source}</p>
+                        <p className="text-xl font-bold leading-tight line-clamp-3">{currentDrift.title}</p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="h-[400px] flex items-center justify-center border-2 border-dashed border-zinc-800 rounded-lg">
+                  <p className="text-zinc-600 italic">Engine waiting for first drift...</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Feature Grid */}
+        <div className="grid md:grid-cols-3 gap-8 mt-32 border-t border-zinc-800 pt-16">
+          <div className="space-y-4">
+            <div className="w-12 h-12 bg-zinc-900 rounded-lg flex items-center justify-center text-orange-500"><Zap /></div>
+            <h4 className="font-bold text-xl">Instant Generation</h4>
+            <p className="text-zinc-500 text-sm">Skia-Canvas rendering turns raw JSON into optimized PNGs in under 200ms.</p>
+          </div>
+          <div className="space-y-4">
+            <div className="w-12 h-12 bg-zinc-900 rounded-lg flex items-center justify-center text-orange-500"><Shield /></div>
+            <h4 className="font-bold text-xl">Better-Auth Secure</h4>
+            <p className="text-zinc-500 text-sm">Protected by industrial-grade session management and Supabase storage.</p>
+          </div>
+          <div className="space-y-4">
+            <div className="w-12 h-12 bg-zinc-900 rounded-lg flex items-center justify-center text-orange-500"><Globe /></div>
+            <h4 className="font-bold text-xl">Global Signals</h4>
+            <p className="text-zinc-500 text-sm">Real-time technology news monitoring from high-authority global domains.</p>
+          </div>
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="p-12 text-center border-t border-zinc-800/50 text-zinc-600 text-sm">
+        © 2026 THE DAILY DRIFT — Wiseman.dev
+      </footer>
     </div>
   );
 }
