@@ -51,7 +51,7 @@ export async function POST(request: Request) {
         ctx.fillText(line, 80, y);
 
         // 3. Convert Canvas to Buffer
-        const buffer = await canvas.toBuffer('image/png');
+        const buffer = await canvas.toBuffer('png');
 
         // 4. Upload to Vercel Blob (This gives us the public URL IG needs)
         const blob = await put(`drifts/${Date.now()}.png`, buffer, {

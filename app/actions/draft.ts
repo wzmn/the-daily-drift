@@ -46,7 +46,7 @@ export async function createDraft() {
     ctx.fillText(news.source.toUpperCase(), 80, 400);
 
     // 3. Generate Buffer & Upload to Vercel Blob
-    const buffer = await canvas.toBuffer("image/png");
+    const buffer = await canvas.toBuffer("png");
     const blob = await put(`drafts/${Date.now()}.png`, buffer, {
       access: "public",
       addRandomSuffix: true,
