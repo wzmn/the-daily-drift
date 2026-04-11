@@ -16,9 +16,6 @@ export default async function HomePage() {
         <h1 className="text-xl font-black tracking-tighter italic">THE DAILY DRIFT</h1>
         <div className="flex gap-6 items-center">
           <Link href="/login" className="text-sm font-medium hover:text-orange-500 transition">Sign In</Link>
-          <Link href="/register" className="bg-white text-black px-4 py-2 rounded-full text-sm font-bold hover:bg-zinc-200 transition">
-            Start Engine
-          </Link>
         </div>
       </nav>
 
