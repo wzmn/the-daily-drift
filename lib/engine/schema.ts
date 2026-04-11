@@ -5,6 +5,7 @@ export const drafts = pgTable("drafts", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   title: text("title").notNull(),
   source: text("source"),
+  url: text("url").notNull().unique(), // Add .unique() here
   newsData: jsonb("news_data").notNull(),
   imageUrl: text("image_url"),
   igPostId: text("ig_post_id"),

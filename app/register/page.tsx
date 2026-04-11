@@ -41,7 +41,7 @@ export default function RegisterPage() {
           <h2 className="text-3xl font-bold text-white tracking-tighter uppercase">
             Create Account
           </h2>
-          <p className="text-zinc-400 mt-2">Join The Daily Drift engine.</p>
+          <p className="text-zinc-400 mt-2">Join The Daily Draft engine.</p>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleRegister}>

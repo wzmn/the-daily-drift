@@ -3,9 +3,19 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/engine/db";
 import { drafts } from "@/lib/engine/schema";
-import { desc } from "drizzle-orm";
+import { desc, sql } from "drizzle-orm";
+import DashboardActions from "@/app/components/DashboardActions";
+import Link from "next/link";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const resolvedSearchParams = await searchParams;
+  const page = Number(resolvedSearchParams?.page) || 1;
+  const limit = 20;
+  const offset = (page - 1) * limit;
   // 1. Protect the page
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -19,8 +29,12 @@ export default async function DashboardPage() {
   const history = await db
     .select()
     .from(drafts)
-    .orderBy(desc(drafts.createdAt))
-    .limit(20);
+    .orderBy(
+      // Access newsData->>'publishedAt' and cast it for sorting
+      desc(sql`${drafts.newsData}->>'pubDate'`)
+    )
+    .limit(limit)
+    .offset(offset);
 
   // 3. Define currentNews as the latest entry in the history
   const currentNews = history.length > 0 ? history[0] : null;
@@ -29,7 +43,7 @@ export default async function DashboardPage() {
     <div className="min-h-screen bg-zinc-950 text-zinc-100 p-8 font-sans">
       <header className="flex justify-between items-center mb-10 border-b border-zinc-800 pb-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tighter">THE DAILY DRIFT</h1>
+          <h1 className="text-2xl font-bold tracking-tighter">THE DAILY DRAFT</h1>
           <p className="text-zinc-500 text-sm">Control Center v1.0</p>
         </div>
         <div className="flex gap-4">
@@ -48,7 +62,7 @@ export default async function DashboardPage() {
         <div className="lg:col-span-2 space-y-6">
           <section className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
             <h2 className="text-sm font-semibold uppercase tracking-widest text-zinc-500 mb-4">
-              Current Hourly Drift
+              Current Hourly Draft
             </h2>
             {currentNews ? (
               <div className="space-y-4">
@@ -57,11 +71,7 @@ export default async function DashboardPage() {
                   <h3 className="text-xl font-medium">{currentNews.title}</h3>
                 </div>
                 <div className="flex gap-3">
-                  {/* Using the trigger component we built earlier */}
-                  <a>Update</a>
-                  <button className="bg-zinc-800 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-zinc-700 transition">
-                    Manual Post to IG
-                  </button>
+                  <DashboardActions />
                 </div>
               </div>
             ) : (
@@ -86,26 +96,40 @@ export default async function DashboardPage() {
                     <th className="p-4 font-medium">Headline</th>
                     <th className="p-4 font-medium">Status</th>
                     <th className="p-4 font-medium">Time</th>
+                    <th className="p-4 font-medium text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {history.length > 0 ? (
                     history.map((drift) => (
-                      <tr key={drift.id} className="border-t border-zinc-800 hover:bg-zinc-800/50">
-                        <td className="p-4 truncate max-w-xs">{drift.title}</td>
+                      <tr key={drift.id} className="border-t border-zinc-800 hover:bg-zinc-800/50 transition-colors">
                         <td className="p-4">
-                          <span
-                            className={`text-[10px] uppercase px-2 py-0.5 rounded border ${
-                              drift.status === "posted"
-                                ? "border-blue-500 text-blue-500"
-                                : "border-zinc-700 text-zinc-500"
-                            }`}
-                          >
+                          <div className="flex flex-col">
+                            <span className="text-zinc-200 font-medium truncate max-w-xs">{drift.title}</span>
+                            <span className="text-[10px] text-zinc-500 uppercase tracking-tight">{drift.source}</span>
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded border ${drift.status === 'published' ? 'border-green-500 text-green-500' :
+                            drift.status === 'ready' ? 'border-orange-500 text-orange-500' :
+                              'border-zinc-700 text-zinc-500'
+                            }`}>
                             {drift.status}
                           </span>
                         </td>
-                        <td className="p-4 text-zinc-500">
-                          {new Date(drift.createdAt!).toLocaleTimeString()}
+                        <td className="p-4 text-zinc-500 tabular-nums">
+                          {new Date(drift.createdAt!).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </td>
+                        <td className="p-4 text-right">
+                          {drift.imageUrl && (
+                            <a
+                              href={drift.imageUrl}
+                              target="_blank"
+                              className="text-xs font-bold text-zinc-400 hover:text-white transition"
+                            >
+                              VIEW GRAPHIC →
+                            </a>
+                          )}
                         </td>
                       </tr>
                     ))
@@ -118,6 +142,37 @@ export default async function DashboardPage() {
                   )}
                 </tbody>
               </table>
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="p-4 border-t border-zinc-800 flex justify-between items-center text-sm text-zinc-500">
+              <span>Page {page}</span>
+              <div className="flex gap-2">
+                {page > 1 ? (
+                  <Link
+                    href={`/dashboard?page=${page - 1}`}
+                    className="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 rounded transition text-zinc-300"
+                  >
+                    Previous
+                  </Link>
+                ) : (
+                  <button disabled className="px-3 py-1 bg-zinc-800/30 text-zinc-700 rounded cursor-not-allowed">
+                    Previous
+                  </button>
+                )}
+                {history.length === limit ? (
+                  <Link
+                    href={`/dashboard?page=${page + 1}`}
+                    className="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 rounded transition text-zinc-300"
+                  >
+                    Next
+                  </Link>
+                ) : (
+                  <button disabled className="px-3 py-1 bg-zinc-800/30 text-zinc-700 rounded cursor-not-allowed">
+                    Next
+                  </button>
+                )}
+              </div>
             </div>
           </section>
         </div>

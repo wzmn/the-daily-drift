@@ -65,7 +65,7 @@ export async function POST(request: Request) {
             `https://graph.facebook.com/v24.0/${process.env.INSTAGRAM_USER_ID}/media`,
             {
                 image_url: blob.url,
-                caption: `${news.title}\n\nVia ${news.source} #TheDailyDrift #News`,
+                caption: `${news.title}\n\nVia ${news.source} #TheDailyDraft #News`,
                 access_token: process.env.INSTAGRAM_ACCESS_TOKEN
             }
         );
