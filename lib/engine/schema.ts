@@ -11,6 +11,8 @@ export const drafts = pgTable("drafts", {
   igPostId: text("ig_post_id"),
   status: text("status").default("draft"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
+  publishedAt: timestamp("publishedAt"),
+  igMediaId: text("ig_media_id"),
 });
 
 // 2. Auth Tables (Better-Auth / Auth.js standard)

@@ -121,7 +121,7 @@ export async function GET() {
         ctx.restore();
 
         const buffer = await canvas.toBuffer("png");
-        const blob = await put(`drifts/${task.id}.png`, buffer, { access: "public", allowOverwrite: true });
+        const blob = await put(`drifts/${task.id}.png`, buffer, { access: "public", allowOverwrite: true, contentType: 'image/png' });
 
         await db.update(drafts)
             .set({ imageUrl: blob.url, status: "ready" })

@@ -6,6 +6,9 @@ import { drafts } from "@/lib/engine/schema";
 import { desc, sql } from "drizzle-orm";
 import DashboardActions from "@/app/components/DashboardActions";
 import Link from "next/link";
+import PublishButton from "@/app/components/PublishButton";
+
+
 
 export default async function DashboardPage({
   searchParams,
@@ -77,7 +80,8 @@ export default async function DashboardPage({
             ) : (
               <div className="space-y-4">
                 <p className="text-zinc-500 italic">Scanning the horizon for news...</p>
-                <a>button here</a>
+                <DashboardActions />
+
               </div>
             )}
           </section>
@@ -130,6 +134,7 @@ export default async function DashboardPage({
                               VIEW GRAPHIC →
                             </a>
                           )}
+                          <PublishButton draftId={drift.id} />
                         </td>
                       </tr>
                     ))

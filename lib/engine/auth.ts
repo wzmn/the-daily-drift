@@ -13,6 +13,11 @@ export const auth = betterAuth({
     emailAndPassword: {
         enabled: true // Allows you to log in with your admin credentials
     },
+    trustedOrigins: [
+        "https://thedailydraft.xyz",
+        "https://www.thedailydraft.xyz",
+        "http://localhost:3000" // Keep this for local dev
+    ],
     // 2026 Feature: Rate limiting to prevent brute force on your bot dashboard
     rateLimit: {
         enabled: true,
