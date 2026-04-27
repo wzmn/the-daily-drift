@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     // Meta will grab the image from your public Vercel Blob URL
     const containerUrl = `https://graph.facebook.com/v21.0/${IG_USER_ID}/media`;
     const paramsDebug = {
-      image_url: `https://thedailydraft.xyz/api/proxy-image?url=${encodeURIComponent(draft.imageUrl)}`,
+      image_url: `https://www.thedailydraft.xyz/api/proxy-image?url=${encodeURIComponent(draft.imageUrl)}`,
       caption: draft.title || "",
       media_type: 'STORIES',
       access_token: IG_ACCESS_TOKEN!,
