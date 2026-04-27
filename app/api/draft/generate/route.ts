@@ -38,17 +38,17 @@ export async function GET() {
         // --- DYNAMIC FONT SCALING & CENTERING ---
         const maxWidth = 900;
         const maxHeight = 1100;
-        const boxStartY = 350; 
+        const boxStartY = 350;
         let fontSize = 120;
         let lines: string[] = [];
         let finalLineHeight = 0;
         let totalHeight = 0;
-        
+
         const cleanTitle = (task.title || "UNTITLED SIGNAL").toUpperCase();
 
         while (fontSize > 30) {
             ctx.font = `bold ${fontSize}px Helvetica, Arial, sans-serif`;
-            const lineHeight = fontSize * 1.05; 
+            const lineHeight = fontSize * 1.05;
             lines = [];
 
             const words = cleanTitle.split(/\s+/);
@@ -71,7 +71,7 @@ export async function GET() {
                 finalLineHeight = lineHeight;
                 break;
             }
-            fontSize -= 2; 
+            fontSize -= 2;
         }
 
         // --- CENTERING CALCULATION ---
@@ -120,8 +120,12 @@ export async function GET() {
         ctx.fillText("THE DAILY DRIFT", 0, 0);
         ctx.restore();
 
-        const buffer = await canvas.toBuffer("png");
-        const blob = await put(`drifts/${task.id}.png`, buffer, { access: "public", allowOverwrite: true, contentType: 'image/png' });
+        const buffer = await canvas.toBuffer("jpeg", { quality: 0.9 });
+        const blob = await put(`drifts/${task.id}.jpg`, buffer, {
+            access: "public",
+            allowOverwrite: true,
+            contentType: 'image/jpeg'
+        });
 
         await db.update(drafts)
             .set({ imageUrl: blob.url, status: "ready" })
