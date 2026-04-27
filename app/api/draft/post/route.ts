@@ -19,33 +19,32 @@ export async function POST(req: Request) {
 
     // STAGE 1: Create the Media Container
     // Meta will grab the image from your public Vercel Blob URL
-    const containerUrl = `https://graph.facebook.com/v20.0/${IG_USER_ID}/media`;
+    const containerUrl = `https://graph.facebook.com/v21.0/${IG_USER_ID}/media`;
     const paramsDebug = {
       image_url: `https://thedailydraft.xyz/api/proxy-image?url=${encodeURIComponent(draft.imageUrl)}`,
       caption: draft.title || "",
+      media_type: 'STORIES',
       access_token: IG_ACCESS_TOKEN!,
     }
     console.log(paramsDebug);
     const containerParams = new URLSearchParams(paramsDebug);
 
-    const containerRes = await fetch(`${containerUrl}?${containerParams.toString()}`, { method: "POST" });
-    const containerData = await containerRes.json();
+    const containerResponse = await fetch(
+      `https://graph.facebook.com/v20.0/${IG_USER_ID}/media?${containerParams.toString()}`,
+      { method: 'POST' }
+    );
+    const containerData = await containerResponse.json();
+
 
     if (containerData.error) {
       throw new Error(`Container Creation Failed: ${containerData.error.message}`);
     }
 
-    const creationId = containerData.id;
-
-    // STAGE 2: Publish the Container
-    const publishUrl = `https://graph.facebook.com/v20.0/${IG_USER_ID}/media_publish`;
-    const publishParams = new URLSearchParams({
-      creation_id: creationId,
-      access_token: IG_ACCESS_TOKEN!,
-    });
-
-    const publishRes = await fetch(`${publishUrl}?${publishParams.toString()}`, { method: "POST" });
-    const publishData = await publishRes.json();
+    const publishResponse = await fetch(
+      `https://graph.facebook.com/v20.0/${IG_USER_ID}/media_publish?creation_id=${containerData.id}&access_token=${IG_ACCESS_TOKEN}`,
+      { method: 'POST' }
+    );
+    const publishData = await publishResponse.json();
 
     if (publishData.error) {
       throw new Error(`Publishing Failed: ${publishData.error.message}`);
