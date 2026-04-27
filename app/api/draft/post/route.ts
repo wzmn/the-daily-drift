@@ -27,13 +27,13 @@ export async function POST(req: Request) {
     const proxyUrl = `${baseUrl}/api/proxy-image?url=${encodeURIComponent(draft.imageUrl)}&ext=.jpg`;
     
     const params = new URLSearchParams({
-      image_url: proxyUrl,
+      image_url: "https://placehold.co/1080x1920",
       caption: draft.title || "",
       media_type: 'STORIES',
       access_token: IG_ACCESS_TOKEN!,
     });
 
-    console.log("Publishing Proxy URL:", proxyUrl);
+    console.log("Publishing Proxy URL:", params.get('image_url') );
 
     const containerResponse = await fetch(
       `https://graph.facebook.com/v20.0/${IG_USER_ID}/media?${params.toString()}`,
