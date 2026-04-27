@@ -19,8 +19,8 @@ export async function POST(req: Request) {
 
     // Dynamic Base URL: Ensures proxy works on local, preview, and production
     // If you have a fixed custom domain, you can keep "https://www.thedailydraft.xyz"
-    const protocol = req.headers.get("x-forwarded-proto") || "https";
-    const host = req.headers.get("host") || "www.thedailydraft.xyz";
+    const protocol = "https";
+    const host = "www.thedailydraft.xyz";
     const baseUrl = `${protocol}://${host}`;
 
     // STAGE 1: Create the Media Container

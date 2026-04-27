@@ -10,13 +10,14 @@ export async function GET(req: Request) {
     const response = await fetch(blobUrl);
     
     // We get the body as a readable stream
-    const body = response.body;
+    const buffer = await response.arrayBuffer();
 
-    return new NextResponse(body, {
+    return new NextResponse(buffer, {
       headers: {
         'Content-Type': 'image/png',
+        'Content-Length': buffer.byteLength.toString(), // CRITICAL FOR META
+        'Cache-Control': 'public, max-age=31536000, immutable',
         'X-Robots-Tag': 'all',
-        'Cache-Control': 'no-store, must-revalidate',
         'Access-Control-Allow-Origin': '*',
       },
     });
