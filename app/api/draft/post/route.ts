@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     const baseUrl = `${protocol}://${host}`;
 
     // STAGE 1: Create the Media Container
-    const proxyUrl = `${baseUrl}/api/proxy-image?url=${encodeURIComponent(draft.imageUrl)}`;
+    const proxyUrl = `${baseUrl}/api/proxy-image?url=${encodeURIComponent(draft.imageUrl)}&ext=.jpg`;
     
     const params = new URLSearchParams({
       image_url: proxyUrl,

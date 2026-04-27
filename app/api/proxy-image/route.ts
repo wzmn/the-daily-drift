@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import sharp from 'sharp';
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -8,20 +9,27 @@ export async function GET(req: Request) {
 
   try {
     const response = await fetch(blobUrl);
-    
-    // We get the body as a readable stream
-    const buffer = await response.arrayBuffer();
+    const inputBuffer = await response.arrayBuffer();
 
-    return new NextResponse(buffer, {
+    // 1. Process with sharp
+    const jpegBuffer = await sharp(Buffer.from(inputBuffer))
+      .jpeg({ quality: 90 })
+      .toBuffer();
+
+    // 2. CONVERT TO UINT8ARRAY (This fixes the TS error)
+    const uint8Array = new Uint8Array(jpegBuffer);
+
+    return new NextResponse(uint8Array, {
       headers: {
-        'Content-Type': 'image/png',
-        'Content-Length': buffer.byteLength.toString(), // CRITICAL FOR META
-        'Cache-Control': 'public, max-age=31536000, immutable',
+        'Content-Type': 'image/jpeg',
+        'Content-Length': uint8Array.byteLength.toString(),
         'X-Robots-Tag': 'all',
+        'Cache-Control': 'public, max-age=31536000, immutable',
         'Access-Control-Allow-Origin': '*',
       },
     });
-  } catch (error) {
-    return new NextResponse('Failed to stream image', { status: 500 });
+  } catch (e) {
+    console.error("Proxy Conversion Error:", e);
+    return new NextResponse('Internal Proxy Error', { status: 500 });
   }
 }
