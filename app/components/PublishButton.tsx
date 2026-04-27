@@ -3,7 +3,7 @@
 import {toast} from "sonner";
 
 
-export default function PublishButton(draftId: string) {
+export default function PublishButton({ draftId }: { draftId: string }) {
     
     const handlePublish = async () => {
         const response = await fetch("/api/draft/post", {
