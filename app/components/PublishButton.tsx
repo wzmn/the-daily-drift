@@ -9,7 +9,7 @@ export default function PublishButton({ draftId }: { draftId: string }) {
         const response = await fetch("/api/draft/post", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(draftId),
+            body: JSON.stringify({draftId}),
         });
 
         const result = await response.json();

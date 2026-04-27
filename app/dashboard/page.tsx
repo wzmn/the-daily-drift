@@ -134,7 +134,7 @@ export default async function DashboardPage({
                               VIEW GRAPHIC →
                             </a>
                           )}
-                          <PublishButton draftId={drift.id } />
+                          <PublishButton draftId={drift.id} />
                         </td>
                       </tr>
                     ))

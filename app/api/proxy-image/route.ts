@@ -1,20 +1,23 @@
 import { NextResponse } from 'next/server';
+const BYPASS_TOKEN = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const blobUrl = searchParams.get('url');
-
+  
   if (!blobUrl) return new NextResponse('Missing URL', { status: 400 });
 
-  // Fetch from Blob internally (Server-to-Server doesn't trigger bot protection)
-  const response = await fetch(blobUrl);
+  // Use the bypass token for the INTERNAL fetch so Vercel lets the server through
+  const protectedUrl = `${blobUrl}?x-vercel-protection-bypass=${BYPASS_TOKEN}`;
+
+  const response = await fetch(protectedUrl);
   const buffer = await response.arrayBuffer();
 
   return new NextResponse(buffer, {
     headers: {
       'Content-Type': 'image/png',
-      'X-Robots-Tag': 'all', // The magic permission for Meta
-      'Cache-Control': 'public, max-age=31536000',
+      'X-Robots-Tag': 'all', 
+      'Cache-Control': 'no-store', // Don't cache the protection-bypassed image
     },
   });
 }
