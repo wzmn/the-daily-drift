@@ -1,33 +1,51 @@
 'use client'
 
-import {toast} from "sonner";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 
 export default function PublishButton({ draftId }: { draftId: string }) {
+    const [loading, setLoading] = useState(false);
+    const router = useRouter();
     
     const handlePublish = async () => {
-        const response = await fetch("/api/draft/post", {
+        setLoading(true);
+
+        const actionPromise = fetch("/api/draft/post", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({draftId}),
+            body: JSON.stringify({ draftId }),
+        }).then(async (res) => {
+            const result = await res.json();
+            if (!res.ok || !result.success) throw new Error(result.error || "Action failed");
+            return result;
         });
 
-        const result = await response.json();
+        toast.promise(actionPromise, {
+            loading: "Publishing to Instagram...",
+            success: () => {
+                router.refresh();
+                return "Successfully published to Instagram!";
+            },
+            error: (err) => `Error: ${err.message}`,
+        });
 
-        if (result.success) {
-            toast.success("Successfully published to Instagram!");
-            // Refresh your data to show the 'published' status
-        } else {
-            toast.error(`Error: ${result.error}`);
+        try {
+            await actionPromise;
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
         }
     };
     return (
         <button
-        onClick={handlePublish}
-
-            className="text-xs font-bold text-zinc-400 hover:text-white transition"
+            onClick={handlePublish}
+            disabled={loading}
+            className="text-xs font-bold text-zinc-400 hover:text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
-            Publish →
+            {loading ? "Publishing..." : "Publish →"}
         </button>
     )
 }
