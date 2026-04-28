@@ -129,12 +129,17 @@ export default async function DashboardPage({
                             <a
                               href={drift.imageUrl}
                               target="_blank"
-                              className="text-xs font-bold text-zinc-400 hover:text-white transition"
+                              className="text-xs font-bold text-zinc-400 hover:text-white transition mr-4"
                             >
-                              VIEW GRAPHIC →
+                              View Image →
                             </a>
                           )}
-                          <PublishButton draftId={drift.id} />
+                          {drift.status === 'ready' && (
+                            <PublishButton draftId={drift.id} />
+                          )}
+                          {drift.status === 'published' && (
+                            <span className="text-xs font-bold text-green-400 hover:text-white transition mr-4">Published</span>
+                          )}
                         </td>
                       </tr>
                     ))

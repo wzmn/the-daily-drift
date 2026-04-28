@@ -24,10 +24,10 @@ export async function POST(req: Request) {
     const baseUrl = `${protocol}://${host}`;
 
     // STAGE 1: Create the Media Container
-    const proxyUrl = `${baseUrl}/api/proxy-image?url=${encodeURIComponent(draft.imageUrl)}&ext=.jpg`;
+    const proxyUrl = `${baseUrl}/api/proxy-image?url=${encodeURIComponent(draft.imageUrl)}`;
     
     const params = new URLSearchParams({
-      image_url: "https://placehold.co/1080x1920",
+      image_url: draft.imageUrl,
       caption: draft.title || "",
       media_type: 'STORIES',
       access_token: IG_ACCESS_TOKEN!,
